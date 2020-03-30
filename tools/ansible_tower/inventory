@@ -1,0 +1,28 @@
+[tower]
+my-ansible-host-ip
+
+[database]
+
+[all:vars]
+
+admin_user=admin
+admin_password=''
+
+secret_key=''
+
+pg_host=''
+pg_port=''
+
+pg_database='awx'
+pg_username=''
+pg_password=''
+
+rabbitmq_port=5672
+rabbitmq_vhost=tower
+rabbitmq_username=tower
+rabbitmq_password=''
+rabbitmq_cookie=''
+
+# Needs to be true for fqdns and ip addresses
+rabbitmq_use_long_name=true
+# Needs to remain false if you are using localhost
