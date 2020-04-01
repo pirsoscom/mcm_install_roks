@@ -1,6 +1,9 @@
 # https://www.ibm.com/support/knowledgecenter/en/SSFC4F_1.1.0/mcm/troubleshoot/delete_import.html
 # docker run -it --entrypoint=cp -v /tmp:/data ibmcom/icp-multicluster-endpoint-operator:3.2.1 /usr/local/bin/self-destruct.sh /data/self-destruct.sh; /tmp/self-destruct.sh 2>&1 | tee self-destruct.log; rm /tmp/self-destruct.sh
+# docker run -it --entrypoint=cp -v /tmp:/data ibmcom/icp-multicluster-endpoint-operator:3.2.1 /usr/local/bin/self-destruct.sh /data/self-destruct.sh; /tmp/self-destruct.sh 2>&1 | tee self-destruct.log; rm /tmp/self-destruct.sh
 
+
+# docker run -it --entrypoint=cat ibmcom/icp-multicluster-endpoint-operator:3.2.1 /usr/local/bin/self-destruct.sh > sd.sh
 
 #!/bin/bash
 
@@ -13,13 +16,13 @@ if [ -z "${OPERATOR_NAMESPACE}" ]; then
 	OPERATOR_NAMESPACE="multicluster-endpoint"
 fi
 
-# Delete all endpoints.multicloud.ibm.com
+# Delete all endpoints.multicloud.ibm.com 
 kubectl delete endpoints.multicloud.ibm.com -n ${OPERATOR_NAMESPACE}  --all --timeout=60s
 
 # Delete Deployment
 kubectl delete deployment ibm-multicluster-endpoint-operator -n ${OPERATOR_NAMESPACE}
 
-# Force delete all component CRDs if they still exist
+# Force delete all component CRDs if they still exist 
 component_crds=(
 	helmreleases.helm.bitnami.com
 	applicationmanagers.multicloud.ibm.com
@@ -52,8 +55,7 @@ done
 # special case for meterings.multicloud.ibm.com
 for resource in `kubectl get meterings.multicloud.ibm.com -n kube-system -o name`; do
 	kubectl delete ${resource} -n kube-system --timeout=15s
-	kubectl patch ${resource} -n kube-system --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}
-]'
+	kubectl patch ${resource} -n kube-system --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
 done
 
 for crd in "${component_crds[@]}"; do
@@ -62,8 +64,7 @@ for crd in "${component_crds[@]}"; do
 		echo "attempt to delete ${crd} resource ${resource}..."
 		kubectl delete ${resource} -n ${OPERATOR_NAMESPACE} --timeout=15s
 		echo "force remove ${crd} resource ${resource}..."
-		kubectl patch ${resource} -n ${OPERATOR_NAMESPACE} --type="json" -p '[{"op": "remove", "path":"/met
-adata/finalizers"}]'
+		kubectl patch ${resource} -n ${OPERATOR_NAMESPACE} --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
 	done
 	echo "force delete all CustomResourceDefination ${crd} resources..."
 	kubectl delete ${crd}

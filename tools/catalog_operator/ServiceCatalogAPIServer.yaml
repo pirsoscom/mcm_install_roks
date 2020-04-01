@@ -5,7 +5,6 @@ metadata:
     release.openshift.io/create-only: "true"
   generation: 1
   name: cluster
-  selfLink: /apis/operator.openshift.io/v1/servicecatalogapiservers/cluster
 spec:
   logLevel: Normal
   managementState: Managed

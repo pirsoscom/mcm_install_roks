@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
-# Install Script for ICAM on IBM ROKS Cloud
+# Install Script for Monitoring Module (APM)
 #
 # V1.0 
 #
@@ -273,7 +273,7 @@ echo "--------------------------------------------------------------------------
 
         echo "---------------------------------------------------------------------------------------------------------------------------"
         echo " Copy ${CYAN}Certs${NC}"
-        cp $SCRIPT_PATH/tools/apm-ibm-cloud-appmgmt-prod-cacerts.yaml .
+        cp $SCRIPT_PATH/tools/apm/apm-ibm-cloud-appmgmt-prod-cacerts.yaml .
         echo "    ${GREEN}  OK${NC}"
         echo "  "
 
@@ -358,7 +358,7 @@ echo "--------------------------------------------------------------------------
 read -p "Install? [y,N]" DO_COMM
 if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
 
-    $HELM_BIN install --name apm ibm-cloud-appmgmt-prod-1.6.0.tgz \
+    $HELM_BIN install --name apm ibm-cloud-appmgmt-prod-$APM_VERSION.tgz \
     --namespace kube-system  \
     --set global.license="accept"  \
     --set global.ingress.domain="icp-console.$CLUSTER_NAME"  \
@@ -391,7 +391,7 @@ if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
       CONFIGMAP_RESOLVE=$(kubectl get configmap apm-ibm-cloud-appmgmt-prod-cacerts -n kube-system 2>&1)
       echo "   Waiting for ConfigMap" && sleep 1; 
     done
-    kubectl apply -f ./apm-ibm-cloud-appmgmt-prod-cacerts.yaml
+    #kubectl apply -f ./apm-ibm-cloud-appmgmt-prod-cacerts.yaml
 
     echo ""
     echo ""
@@ -413,16 +413,12 @@ echo "--------------------------------------------------------------------------
 echo " ${ORANGE}Registering APM Installation${NC}"
 echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
 echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
-read -p "Are all pods running? (This can take a looooooooong time) [y,N]" DO_COMM
-if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
-  echo "  "
-  echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
-  echo " Registering APM Installation"
-  kubectl exec -n kube-system -t `kubectl get pods -l release=apm -n kube-system | grep "apm-ibm-cem-cem-users" | grep "Running" | head -n 1 | awk '{print $1}'` bash -- "/etc/oidc/oidc_reg.sh" "`echo $(kubectl get secret platform-oidc-credentials -o yaml -n kube-system | grep OAUTH2_CLIENT_REGISTRATION_SECRET: | awk '{print $2}')`"
-  kubectl exec -n kube-system -t `kubectl get pods -l release=apm -n kube-system | grep "apm-ibm-cem-cem-users" | grep "Running" | head -n 1 | awk '{print $1}'` bash -- "/etc/oidc/registerServicePolicy.sh" "`echo $(kubectl get secret apm-cem-service-secret -o yaml -n kube-system | grep cem-service-id: | awk '{print $2}')`" "`cloudctl tokens --access`"
-fi
+waitForPodsReady "kube-system" "release=apm"
 
+CEM_POD=$(kubectl get pods -l release=apm -n kube-system | grep "apm-ibm-cem-cem-users" | grep "Running" | head -n 1 | awk '{print $1}')
 
+kubectl exec -n kube-system -t $CEM_POD bash -- "/etc/oidc/oidc_reg.sh" "`echo $(kubectl get secret platform-oidc-credentials -o yaml -n kube-system | grep OAUTH2_CLIENT_REGISTRATION_SECRET: | awk '{print $2}')`"
+kubectl exec -n kube-system -t $CEM_POD bash -- "/etc/oidc/registerServicePolicy.sh" "`echo $(kubectl get secret apm-cem-service-secret -o yaml -n kube-system | grep cem-service-id: | awk '{print $2}')`" "`cloudctl tokens --access`"
 
 echo "${GREEN}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"
 echo "${GREEN}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"

@@ -58,6 +58,8 @@
 
             export CONSOLE_URL=$OCP_CONSOLE_PREFIX.$CLUSTER_NAME
             export MCM_SERVER=https://icp-console.$CLUSTER_NAME
+            export MCM_PROXY=https://icp-proxy.$CLUSTER_NAME
+
 
             echo "    ${GREEN}Cluster FQDN:${NC}                        '$CLUSTER_NAME'"
             #return $CLUSTER_NAME
@@ -267,8 +269,8 @@
                 #kubectl get servicecatalogapiservers cluster -oyaml --export | sed -e '/status:/d' -e '/creationTimestamp:/d' -e '/selfLink: [a-z0-9A-Z/]\+/d' -e '/resourceVersion: "[0-9]\+"/d' -e '/phase:/d' -e '/uid: [a-z0-9-]\+/d'
                 #kubectl get servicecatalogcontrollermanagers cluster -oyaml --export | sed -e '/status:/d' -e '/creationTimestamp:/d' -e '/selfLink: [a-z0-9A-Z/]\+/d' -e '/resourceVersion: "[0-9]\+"/d' -e '/phase:/d' -e '/uid: [a-z0-9-]\+/d'
 
-                kubectl apply -f ./tools/ServiceCatalogAPIServer.yaml
-                kubectl apply -f ./tools/ServiceCatalogControllerManager.yaml
+                kubectl apply -f ./tools/catalog_operator/ServiceCatalogAPIServer.yaml
+                kubectl apply -f ./tools/catalog_operator/ServiceCatalogControllerManager.yaml
 
                 waitForPod apiserver openshift-service-catalog-apiserver
                 waitForPod controller-manager openshift-service-catalog-controller-manager
@@ -337,7 +339,7 @@
 
 
     # ---------------------------------------------------------------------------------------------------------------------------------------------------"
-    # Unused
+    # Internal
     # ----^-----------------------------------------------------------------------------------------------------------------------------------------------"
         function waitForPod() {
             FOUND=1
@@ -372,3 +374,17 @@
             printf "#####\n\n"
         }
 
+
+        function waitForPodsReady() {
+            NAMESPACE=$1
+            LABEL=$2
+            echo "   Waiting for Pods running in ${CYAN}Namespace${NC} ${ORANGE}$NAMESPACE${NC} and with ${CYAN}Label${NC} ${ORANGE}$LABEL${NC}. Waiting for 30 seconds...."
+            sleep 30
+
+            PODS_NOT_RUNNING_COUNT=$(kubectl get pods -l $LABEL --field-selector=status.phase=Pending -n $NAMESPACE | grep -c "")
+            while  [[ $PODS_NOT_RUNNING_COUNT > 0 ]]; do 
+            PODS_NOT_RUNNING_COUNT=$(kubectl get pods -l $LABEL --field-selector=status.phase=Pending -n $NAMESPACE | grep -c "")
+            echo "   There are still ${RED}$PODS_NOT_RUNNING_COUNT${NC} Pods not running. Waiting for 10 seconds...." && sleep 10; 
+            done
+            echo "   DONE";  
+        }

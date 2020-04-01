@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
-# Install Script for CAM on IBM ROKS Cloud
+# Install Script for Terraform & Service Automation Module (CAM) 
 #
 # V1.0 
 #
@@ -152,8 +152,6 @@ echo " ${PURPLE}Pre-Install Checks${NC}"
 echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
 echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
 
-        POLICY_SCC=$(oc adm policy add-scc-to-user ibm-anyuid-hostpath-scc system:serviceaccount:services:default 2>&1)
-
         checkHelmExecutable
 
         checkCloudctlExecutable
@@ -168,7 +166,7 @@ echo "--------------------------------------------------------------------------
 
         checkRegistryCredentials
 
-        #checkClusterServiceBroker
+        checkClusterServiceBroker
 
 echo "---------------------------------------------------------------------------------------------------------------------------"
 echo "---------------------------------------------------------------------------------------------------------------------------"
@@ -274,20 +272,27 @@ echo "--------------------------------------------------------------------------
 
         echo "---------------------------------------------------------------------------------------------------------------------------"
         echo " Create ${CYAN}Config Directory{NC}"
-        rm -r $INSTALL_PATH/* 
+        #rm -r $INSTALL_PATH/* 
         mkdir -p $INSTALL_PATH 
         cd $INSTALL_PATH
         echo "    ${GREEN}  OK${NC}"
         echo "  "
 
+
         echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
-        echo " Create ${CYAN}Secret{NC}"
+        echo " Create ${CYAN}Policies${NC}"
+        POLICY_USCC=$(oc adm policy add-scc-to-user ibm-anyuid-hostpath-scc system:serviceaccount:services:default 2>&1)
+        POLICY_GSCC=$(oc adm policy add-scc-to-group privileged system:serviceaccounts:services 2>&1)
+        echo "    ${GREEN}  OK${NC}"
+        echo "  "
+
+        echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
+        echo " Create ${CYAN}Secret${NC}"
         kubectl delete secret -n services camsecret
         kubectl create secret docker-registry camsecret --docker-username="$ENTITLED_REGISTRY_USER" --docker-password="$ENTITLED_REGISTRY_KEY" --docker-email="test@us.ibm.com" --docker-server="cp.icr.io" -n services
         echo "    ${GREEN}  OK${NC}"
         echo "  "
         
-        echo "  "
         echo "----------------------------------------------------------------------------------------------------------------------------------------------------"
         echo " Create ${CYAN}Service Account{NC}"
         kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "camsecret"}]}' -n services
@@ -406,7 +411,7 @@ echo "--------------------------------------------------------------------------
 
           read -p "Install with Persistence for all (otherwise only for MongoDB)? [y,N]" DO_COMM
           if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
-          $HELM_BIN install --name cam ibm-cam-$CAM_VERSION.tgz \
+          $HELM_BIN install --name cam ibm-cam-$CAM_VERSION.tgz --timeout=9999 --wait \
             --namespace services  \
             --set global.image.secretName=camsecret  \
             --set arch=amd64  \
@@ -428,7 +433,7 @@ echo "--------------------------------------------------------------------------
             --set camBPDAppDataPV.persistence.accessMode=ReadWriteMany \
             --tls
           else
-            $HELM_BIN install --name cam ibm-cam-$CAM_VERSION.tgz \
+            $HELM_BIN install --name cam ibm-cam-$CAM_VERSION.tgz  --timeout=9999 --wait \
             --namespace services  \
             --set global.image.secretName=camsecret  \
             --set arch=amd64  \
@@ -459,7 +464,7 @@ echo "--------------------------------------------------------------------------
           echo "${ORANGE}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"
           echo "${ORANGE}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"
           echo " Please run"
-          echo "  ${ORANGE}./tools/automation-navigation-updates.sh -a services${NC}"
+          echo "  ${ORANGE}./tools/navigation/automation-navigation-updates.sh -a services${NC}"
           echo ""
           echo ""
         fi
@@ -473,10 +478,33 @@ echo "${GREEN}------------------------------------------------------------------
 echo "${GREEN}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"
 echo "${GREEN}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"
 echo "${GREEN}----------------------------------------------------------------------------------------------------------------------------------------------------${NC}"
-echo " ${GREEN}To remove release: $HELM_BIN delete cam --purge --tls${NC}"
+echo " ${GREEN}To remove release: $HELM_BIN delete cam --purge  --timeout=9999 --wait --tls${NC}"
 echo "${GREEN}***************************************************************************************************************************************************${NC}"
 echo "${GREEN}***************************************************************************************************************************************************${NC}"
 
 
+exit 2
 
+
+kubectl get svc -n kube-system tiller-deploy
+
+--host=10.111.221.14:443
+
+
+
+helm2 install --name cam ibm-cam-4.2.0.tgz \
+--namespace services  \
+--set global.image.secretName=camsecret  \
+--set arch=amd64  \
+--set global.iam.deployApiKey=8ZdE0lwGi-3zDCeu1lAhTdpxHXD6rwaUn4v__pd1-uRy  \
+--set icp.port=443  \
+--set global.audit=false \
+--set camMongoPV.persistence.storageClassName=ibmc-block-gold \
+--set camMongoPV.persistence.enabled=true \
+--set camMongoPV.persistence.accessMode=ReadWriteOnce \
+--set camMongoPV.persistence.useDynamicProvisioning=true \
+--set camLogsPV.persistence.enabled=false \
+--set camBPDAppDataPV.persistence.enabled=false \
+--set camTerraformPV.persistence.enabled=false \
+--tls
 
