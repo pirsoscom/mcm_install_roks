@@ -184,7 +184,7 @@ add_navigation_items() {
 		product_name="CloudForms"
 		check_exist
 		echo "Adding new navigation items to file..."
-		cloudform_nav_item="  - id: cloudforms\n    isAuthorized:\n    - Administrator\n    - ClusterAdministrator\n    - Operator\n    label: CloudForms\n    parentId: automate\n    serviceId: mcm-ui\n    url: $_arg_cloudforms"
+		cloudform_nav_item="  - id: cloudforms\n    isAuthorized:\n    - Administrator\n    - ClusterAdministrator\n    - Operator\n    label: CloudForms\n    parentId: automate\n    serviceId: mcm-ui\n    target: _blank\n    url: $_arg_cloudforms"
 		awk_output="$(awk -v cloud="$cloudform_nav_item" '1;/navItems:/{print cloud}' navconfigurations.yaml)"
 		echo "$awk_output" >navconfigurations.yaml
 	fi
@@ -194,7 +194,7 @@ add_navigation_items() {
 		id="tower"
 		product_name="Ansible Tower"
 		check_exist
-		tower_nav_item="  - id: tower\n    isAuthorized:\n    - Administrator\n    - ClusterAdministrator\n    - Operator\n    label: Ansible automation\n    parentId: automate\n    serviceId: mcm-ui\n    url: $_arg_ansible_tower"
+		tower_nav_item="  - id: tower\n    isAuthorized:\n    - Administrator\n    - ClusterAdministrator\n    - Operator\n    label: Ansible automation\n    parentId: automate\n    serviceId: mcm-ui\n    target: _blank\n    url: $_arg_ansible_tower"
 		awk_output="$(awk -v tower="$tower_nav_item" '1;/navItems:/{print tower}' navconfigurations.yaml)"
 		echo "$awk_output" >navconfigurations.yaml
 	fi
@@ -204,7 +204,7 @@ add_navigation_items() {
 		id="cam"
 		product_name="Cloud Automation Manager"
 		check_exist
-		cam_nav_item="  - id: cam\n    isAuthorized:\n    - Administrator\n    - ClusterAdministrator\n    - Operator\n    label: Terraform automation\n    parentId: automate\n    serviceId: mcm-ui\n    url: $_arg_cloud_automation_manager"
+		cam_nav_item="  - id: cam\n    isAuthorized:\n    - Administrator\n    - ClusterAdministrator\n    - Operator\n    label: Terraform automation\n    parentId: automate\n    serviceId: mcm-ui\n    target: _blank\n    url: $_arg_cloud_automation_manager"
 		awk_output="$(awk -v cam="$cam_nav_item" '1;/navItems:/{print cam}' navconfigurations.yaml)"
 		echo "$awk_output" >navconfigurations.yaml
 	fi
@@ -214,7 +214,7 @@ add_navigation_items() {
 # Update CR with augmented file.
 apply_new_items() {
 	echo "Updating MCM with new items..."
-	feedback=$(bash -c 'kubectl apply -n kube-system -f navconfigurations.yaml' 2>&1)
+	feedback=$(bash -c 'kubectl apply -n kube-system -f navconfigurations.yaml --validate=false' 2>&1)
 	if echo $feedback | grep -q 'Error from server (NotFound): the server could not find the requested resource'; then
 		echo "Failed running kubectl apply. Error from server (NotFound): the server could not find the requested resource. The kubectl version needs to be updated."
 	fi

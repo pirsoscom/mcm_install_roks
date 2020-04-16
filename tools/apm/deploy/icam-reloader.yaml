@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icam-reloader
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      name: icam-reloader
+  template:
+    metadata:
+      labels:
+        name: icam-reloader
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        # Replace this with the built image name
+        image: docker.io/niklaushirt/reloader:202002170811-multi-arch
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "100Mi"
+          requests:
+            cpu: "50m"
+            memory: "50Mi"
+        imagePullPolicy: Always
+        name: icam-reloader

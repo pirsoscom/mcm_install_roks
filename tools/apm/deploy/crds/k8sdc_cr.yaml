@@ -1,0 +1,70 @@
+apiVersion: ibmcloudappmgmt.com/v1alpha1
+kind: K8sDC
+metadata:
+  name: my-k8sdc
+spec:
+  # Default values copied from <project_dir>/helm-charts/k8monitor/values.yaml
+  
+  ###########################################################
+  # Licensed Materials - Property of IBM.
+  # Copyright IBM Corporation 2019. All Rights Reserved.
+  # U.S. Government Users Restricted Rights - Use, duplication or disclosure
+  # restricted by GSA ADP Schedule Contract with IBM Corp.
+  #
+  # Contributors:
+  #  IBM Corporation - initial API and implementation
+  ############################################################
+  
+  # The name of the secret from which to populate tenantId, ingress host, and CEM auth tokens
+  ibmAgentConfigSecret: "dc-secret"
+  
+  # Name that you wish to reference this monitored cluster by
+  # Alphanumeric characters only- no spaces or special characters allowed (will be stripped out)
+  clusterName: "mcm-hub"
+  
+  # Flags to enable/disable collection of resource types
+  collectResources: "on"
+  collectMetrics: "on"
+  collectEvents: "on"
+  
+  # The name of the security secret from which to populate security tokens necessary for https
+  ibmAgentHTTPSSecret: "ibm-agent-https-secret"
+  
+  # Initial scale for deployment
+  replicas: 1
+  
+  # Use this to determine creation of a service for the k8monitor chart
+  createService: true
+  
+  # This chart creates and binds necessary access roles for its namespace's default
+  # serviceaccount; enabled by default
+  rbac:
+    create: true
+  
+  # Global values this chart uses
+  global:
+    environmentSize: "size0"
+    imagePullPolicy: IfNotPresent
+    proxyHost: ""
+  
+  image:
+    repository: "docker.io"
+  
+  imageNamePrefix: "niklaushirt/"
+  
+  # hostAliases allows the modification of the hosts file inside a container
+  hostAliases: []
+  # - ip: "192.168.1.10"
+  #   hostnames:
+  #   - "example.com"
+  #   - "www.example.com"
+  
+  ###############################################################################
+  ## for PPA charts
+  ###############################################################################
+  ## Architecture - e.g. amd64, s390x, ppc64le. If left empty, arch type will try
+  ## to be determined.
+  ## Note: 'kubectl version' returns platform of given cluster
+  ## remove the arch comment and use the following nodeAffinity for PPA charts, can be removed if github.ibm chart
+  arch: ""
+  

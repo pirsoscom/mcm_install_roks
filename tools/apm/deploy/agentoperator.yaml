@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentoperator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: agentoperator
+  template:
+    metadata:
+      labels:
+        name: agentoperator
+    spec:
+      serviceAccountName: icamklust
+      containers:
+        - name: agentoperator
+          # Replace this with the built image name
+          image: docker.io/niklaushirt/agentoperator:APM_202003100816
+          imagePullPolicy: Always
+          command:
+          - agentoperator
+          args:
+          - "--image-repo=docker.io/niklaushirt"
+          - "--image-prefix="
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "agentoperator"
+          volumeMounts:
+          - name: klusterlet-config
+            mountPath: /opt/klusterlet
+      volumes:
+        - name: klusterlet-config
+          secret:
+            secretName: endpoint-connmgr-hub-kubeconfig

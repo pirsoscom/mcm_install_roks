@@ -1,20 +1,11 @@
-# Install Script for IBM Cloud Pack for Multicloud Management on IBM ROKS Cloud
-
-## Install MCM
+# Install Scripts for IBM Cloud Pack for Multicloud Management
 
 ```
-./2_install_mcm_online.sh -t YOUR-KEY -d /tmp/mcm-install -p Your-Pa$$w0rd
-```
+./2_install_mcm.sh -t MY_TOKEN -d MY-PATH/mcm-install -p passw0rd
+./3_install_cam.sh -t MY_TOKEN -d MY-PATH/mcm-install -x console-openshift-console -p passw0rd
+./4_install_apm.sh -t MY_TOKEN -d MY-PATH/mcm-install -x console-openshift-console -p passw0rd
 
-## Install CAM
-
-```
-./3_install_cam_online.sh -t YOUR-KEY -p Your-Pa$$w0rd -d /tmp/mcm-install
-```
-
-## Install ICAM
-
-```
-./4_install_apm_online.sh -t YOUR-KEY -d /tmp/mcm-install -p Your-Pa$$w0rd
+./8_install_ldap.sh -d MY-PATH/mcm-install -x console-openshift-console -p passw0rd
+./9_register_k8_monitor.sh -d MY-DOCKERGROUP -n test-cluster -f MY-CONFIG-PATH/ibm-cloud-apm-dc-configpack.tar
 
 ```

@@ -13,14 +13,14 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 
-source ./9_functions.sh
+source ./99_functions.sh
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # Adapt Values
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
-export MCM_VERSION=3.2.5
+export MCM_VERSION=3.2.6
 export CAM_VERSION=4.2.0
 export APM_VERSION=1.7.0
 
@@ -95,10 +95,17 @@ export MANAGEMENT_HOST=0.0.0.0
 export OCP_CONSOLE_PREFIX=console-openshift-console
 
 export HELM_BIN=helm
-
+export HELM_TLS=" --tls"
 export ENTITLED_REGISTRY=cp.icr.io
 export ENTITLED_REGISTRY_USER=ekey
 
+
+# Open LDAP
+export LDAP_DOMAIN=local.io
+export LDAP_ADMIN_PASSWORD=passw0rd
+export LDAP_USER_GROUPS=mcm
+export LDAP_USER=mcm
+export LDAP_USER_PASSWORD=passw0rd
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
@@ -115,7 +122,40 @@ export PURPLE="\033[0;35m"       # Purple
 export CYAN="\033[0;36m"         # Cyan
 export WHITE="\033[0;37m"        # White
 
+# https://apps.timwhitlock.info/emoji/tables/unicode#block-2-dingbats
+export beer='\xF0\x9f\x8d\xba'
+export delivery='\xF0\x9F\x9A\x9A'
+export beers='\xF0\x9F\x8D\xBB'
+export eyes='\xF0\x9F\x91\x80'
+export cloud='\xE2\x98\x81'
+export crossbones='\xE2\x98\xA0'
+export litter='\xF0\x9F\x9A\xAE'
+export fail='\xE2\x9B\x94'
+export harpoons='\xE2\x87\x8C'
+export tools='\xE2\x9A\x92'
+export present='\xF0\x9F\x8E\x81'
 
+export telescope='\xF0\x9F\x94\xAD'
+export globe='\xF0\x9F\x8C\x90'
+export clock='\xF0\x9F\x95\x93'
+export wrench='\xF0\x9F\x94\xA7'
+export key='\xF0\x9F\x94\x90'
+export magnifying='\xF0\x9F\x94\x8D'
+export package='\xF0\x9F\x93\xA6'
+export memo='\xF0\x9F\x93\x9D'
+export explosion='\xF0\x9F\x92\xA5'
+export rocket='\xF0\x9F\x9A\x80'
+export cross='\xE2\x9D\x8C'
+export healthy='\xE2\x9C\x85'
+export whitequestion='\xE2\x9D\x93'
+export hand='\xE2\x9C\x8B'
+export exclamation='\xE2\x9D\x97'
+export aaaa='aaaa'
+export aaaa='aaaa'
+export aaaa='aaaa'
+export aaaa='aaaa'
+export aaaa='aaaa'
+export aaaa='aaaa'
 
 
 
