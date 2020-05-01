@@ -54,7 +54,10 @@ spec:
   imageNamePrefix: "niklaushirt/"
   
   # hostAliases allows the modification of the hosts file inside a container
-  hostAliases: []
+  hostAliases:
+    - hostnames:
+        - icp-proxy.apps.ocp43.tec.uk.ibm.com
+      ip: 192.168.1.100
   # - ip: "192.168.1.10"
   #   hostnames:
   #   - "example.com"

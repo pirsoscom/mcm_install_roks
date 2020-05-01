@@ -487,3 +487,31 @@ echo "${GREEN}******************************************************************
 
 exit 2
 
+
+kubectl get svc -n kube-system tiller-deploy
+
+--host=10.111.221.14:443
+
+cloudctl login -a https://icp-console.cp4mcm001-a376efc1170b9b8ace6422196c51e491-0000.us-south.containers.appdomain.cloud/ --skip-ssl-validation -u admin -p P4ssw0rd! -n kube-system
+
+
+helm2 install --name cam ibm-cam-4.2.0.tgz \
+--namespace services  \
+--set global.image.secretName=camsecret  \
+--set arch=amd64  \
+--set global.iam.deployApiKey=8ZdE0lwGi-3zDCeu1lAhTdpxHXD6rwaUn4v__pd1-uRy  \
+--set icp.port=443  \
+--set global.audit=false \
+--set camMongoPV.persistence.storageClassName=ibmc-block-gold \
+--set camMongoPV.persistence.enabled=true \
+--set camMongoPV.persistence.accessMode=ReadWriteOnce \
+--set camMongoPV.persistence.useDynamicProvisioning=true \
+--set camLogsPV.persistence.enabled=false \
+--set camBPDAppDataPV.persistence.enabled=false \
+--set camTerraformPV.persistence.enabled=false \
+--tls
+
+kubectl patch -n openshift-service-catalog-apiserver servicecatalogapiserver cluster --type=json -p '[{"op":"replace","path":"/spec/managementState","value":"Removed"}]'
+kubectl patch -n openshift-service-catalog-controller-manager servicecatalogcontrollermanager cluster --type=json -p '[{"op":"replace","path":"/spec/managementState","value":"Removed"}]'
+kubectl patch -n openshift-service-catalog-apiserver servicecatalogapiserver cluster --type=json -p '[{"op":"replace","path":"/spec/managementState","value":"Managed"}]'
+kubectl patch -n openshift-service-catalog-controller-manager servicecatalogcontrollermanager cluster --type=json -p '[{"op":"replace","path":"/spec/managementState","value":"Managed"}]'

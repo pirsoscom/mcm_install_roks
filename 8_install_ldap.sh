@@ -259,7 +259,6 @@ echo "--------------------------------------------------------------------------
 read -p "Install? [y,N]" DO_COMM
 if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
 
-
         echo "Install OpenLDAP Helm Chart"
         $HELM_BIN install --name openldap ./tools/ldap/openldap  \
             --set-string OpenLdap.Domain=$LDAP_DOMAIN \
@@ -292,17 +291,6 @@ if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
         echo ""
 
 
-
-
-          read -p "Load some example users and groups? [y,N]" DO_COMM
-          if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
-            echo "---------------------------------------------------------------------------------------------------------------------------"
-            echo "---------------------------------------------------------------------------------------------------------------------------"
-            echo " ${ORANGE}Loading examples${NC}"
-            echo ""
-            echo "---------------------------------------------------------------------------------------------------------------------------"
-            echo "---------------------------------------------------------------------------------------------------------------------------"
-
             echo "Waiting for OpenLdap Pod to become Ready... (sleeping for 4 minutes before checking)"
             sleep 60
             kubectl wait --for=condition=Ready pods -l app=openldap -n default
@@ -311,11 +299,8 @@ if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
             sleep 10
             echo "ldapadd -x -D $BIND_DN -w $LDAP_ADMIN_PASSWORD -H ldap://openldap-default.$CLUSTER_NAME:32314 -f ./tools/ldap/import.ldif"
 
-            ldapadd -x -D "$BIND_DN" -w $LDAP_ADMIN_PASSWORD -H ldap://openldap-default.$CLUSTER_NAME:32314 -f ./tools/ldap/import.ldif
 
-          else
-            echo "${RED}Examples not loaded${NC}"
-          fi
+        
 else
     echo "${RED}Installation Aborted${NC}"
     exit 1

@@ -12,10 +12,10 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------"
 
 source ./0_variables.sh
+export CLIENT_ID=YWRtaW51c2Vy                 # adminuser
+export CLIENT_SECRET="bXlzdXBlcnNlY3RyZXQ="   # mysupersectret
+export CF_IP=52.117.8.177
 
-export CLIENT_SECRET="mysupersectret"
-export CF_IP=192.168.27.134
-export CF_HOSTNAME=https://$CF_IP
 
 
 
@@ -160,6 +160,8 @@ echo "--------------------------------------------------------------------------
 
         getInstallPath
 
+        export CF_HOSTNAME=https://$CF_IP
+
 echo "---------------------------------------------------------------------------------------------------------------------------"
 echo "---------------------------------------------------------------------------------------------------------------------------"
 echo "  "
@@ -276,12 +278,13 @@ echo "--------------------------------------------------------------------------
         # ---------------------------------------------------------------------------------------------------------------------------------------------------"
         echo " ${GREEN}Adapt Adapt registration.json File${NC}"
 
-        ${SED} -i "s@ICP_PROXY_IP@$MCM_PROXY@" registration.json
+        ${SED} -i "s@ICP_PROXY_URL@$MCM_PROXY@" registration.json
         ${SED} -i "s/ICP_PROXY_PORT/443/" registration.json
         ${SED} -i "s@ICP_ENDPOINT_URL@$MCM_SERVER@" registration.json
         ${SED} -i "s/ICP_ENDPOINT_PORT/443/" registration.json
-        ${SED} -i "s/CLIENT_ID/$MCM_USER/" registration.json
-        ${SED} -i "s/CLIENT_SECRET/$MCM_PASSWORD/" registration.json
+        ${SED} -i "s/CLIENT_ID/$CLIENT_ID/" registration.json
+        ${SED} -i "s/CLIENT_SECRET/$CLIENT_SECRET/" registration.json
+        ${SED} -i "s@CF_HOSTNAME@$CF_HOSTNAME@" registration.json
 
 
         # ---------------------------------------------------------------------------------------------------------------------------------------------------"
@@ -298,7 +301,7 @@ echo "--------------------------------------------------------------------------
         ${SED} -i "s@MCM_PASSWORD@$MCM_PASSWORD@" manageiq-external-auth-openidc.conf
         ${SED} -i "s/CLIENT_SECRET/$CLIENT_SECRET/" manageiq-external-auth-openidc.conf
         ${SED} -i "s@MCM_SERVER@$MCM_SERVER@" manageiq-external-auth-openidc.conf
-
+        ${SED} -i "s/CLIENT_ID/$CLIENT_ID/" manageiq-external-auth-openidc.conf
 
 
 
@@ -320,6 +323,11 @@ echo " ${GREEN}Please Check if it looks OK${NC}"
 echo " ${ORANGE}vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv${NC}"
 echo "  "
         cat registration.json
+echo "  "
+echo " ${ORANGE}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
+echo " ${ORANGE}vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv${NC}"
+echo "  "
+        cat manageiq-external-auth-openidc.conf
 echo "  "
 echo " ${ORANGE}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${NC}"
 echo " ${GREEN}Current registration.json file for installation${NC}"
@@ -363,7 +371,7 @@ if [[ $DO_COMM == "y" ||  $DO_COMM == "Y" ]]; then
           fi
 
         echo " ${GREEN}Register OAUTH Client${NC}"
-          cloudctl iam oauth-client-delete cloudforms
+          cloudctl iam oauth-client-delete $CLIENT_ID
           cloudctl iam oauth-client-register -f $INSTALL_PATH/registration.json
         echo " ${GREEN}    OK${NC}"
 

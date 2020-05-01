@@ -50,7 +50,6 @@ echo "--------------------------------------------------------------------------
         do
           case "$opt" in
               d ) INPUT_DOCKER_DOMAIN="$OPTARG" ;;
-              n ) INPUT_IMPORT_NAME="$OPTARG" ;;
               f ) INPUT_CONFIG="$OPTARG" ;;
           esac
         done
@@ -59,7 +58,7 @@ echo "--------------------------------------------------------------------------
         if [[ $INPUT_DOCKER_DOMAIN == "" ]];
         then
             echo "    ${RED}ERROR${NC}: Please provide the Docker Hub Domain"
-            echo "    USAGE: $0 -d <DOCKER_DOMAIN>  -n <CLUSTER_IMPORT_NAME> -f <CONFIGURATION_FILE>  "
+            echo "    USAGE: $0 -d <DOCKER_DOMAIN> -f <CONFIGURATION_FILE>  "
             exit 1
         else
           echo "    ${GREEN}Docker Hub Domain OK:${NC}                $INPUT_DOCKER_DOMAIN"
@@ -70,7 +69,7 @@ echo "--------------------------------------------------------------------------
         if [[ $INPUT_CONFIG == "" ]];
         then
             echo "    ${RED}ERROR${NC}: Please provide the ibm-cloud-apm-dc-configpack.tar file"
-            echo "    USAGE: $0 -d <DOCKER_DOMAIN>  -n <CLUSTER_IMPORT_NAME> -f <CONFIGURATION_FILE>   "
+            echo "    USAGE: $0 -d <DOCKER_DOMAIN> -f <CONFIGURATION_FILE>   "
             exit 1
         else
           echo "    ${GREEN}Config File OK:${NC}                      $INPUT_CONFIG"
@@ -78,19 +77,6 @@ echo "--------------------------------------------------------------------------
         fi
 
 
-
-        if [[ $INPUT_IMPORT_NAME == "" ]];
-        then
-            echo "    ${RED}ERROR${NC}: Please provide the Import Name"
-            echo "    USAGE: $0 -d <DOCKER_DOMAIN>  -n <CLUSTER_IMPORT_NAME> -f <CONFIGURATION_FILE>   "
-            exit 1
-        else
-          echo "    ${GREEN}Import Name OK:${NC}                     '$INPUT_IMPORT_NAME'"
-          K8M_IMPORT_NAME=$INPUT_IMPORT_NAME
-        fi
-
-
-     
 
 
 echo "---------------------------------------------------------------------------------------------------------------------------"
@@ -306,6 +292,21 @@ oc create clusterrolebinding icamklust-binding --clusterrole=cluster-admin \
 oc adm policy add-cluster-role-to-user cluster-admin IAM#nikh@ch.ibm.com --as=system:admin
 
 
+oc create clusterrolebinding svcreg-binding --clusterrole=cluster-admin \
+ --serviceaccount=multicluster-endpoint:endpoint-svcreg -n multicluster-endpoint
+
+oc create clusterrolebinding test-binding --clusterrole=cluster-admin \
+ --serviceaccount=hcm:clusters:mcm-hub:mcm-hub -n multicluster-endpoint
+
+
+oc adm policy add-cluster-role-to-user cluster-admin hcm:clusters:mcm-hub:mcm-hub --as=system:admin
+
+
+
+
+endpoint-svcreg
+
+
 kubectl -n multicluster-endpoint create -f /Users/nhirt/ibm-cloud-apm-dc-configpack/dc-secret.yaml
 
 kubectl -n multicluster-endpoint create secret generic ibm-agent-https-secret --from-file=/Users/nhirt/ibm-cloud-apm-dc-configpack/keyfiles/cert.pem --from-file=/Users/nhirt/ibm-cloud-apm-dc-configpack/keyfiles/ca.pem --from-file=/Users/nhirt/ibm-cloud-apm-dc-configpack/keyfiles/key.pem
@@ -335,4 +336,4 @@ oc delete clusterrolebinding icamklust-binding -n multicluster-endpoint
 oc delete clusterrolebinding icamklust-binding_default -n multicluster-endpoint
 
 
-
+oc adm policy add-cluster-role-to-user cluster-admin root --as=system:admin

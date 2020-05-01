@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k8sdc-operator
+  namespace: multicluster-endpoint
 spec:
   replicas: 1
   selector:
