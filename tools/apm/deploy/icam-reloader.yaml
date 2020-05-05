@@ -25,7 +25,7 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
         # Replace this with the built image name
-        image: docker.io/niklaushirt/reloader:202002170811-multi-arch
+        image: MY_REGISTRY/multicluster-endpoint/reloader:202002170811-multi-arch
         resources:
           limits:
             cpu: "500m"

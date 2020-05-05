@@ -17,12 +17,12 @@ spec:
       containers:
         - name: agentoperator
           # Replace this with the built image name
-          image: docker.io/niklaushirt/agentoperator:APM_202003100816
+          image: MY_REGISTRY/multicluster-endpoint/agentoperator:APM_202003100816
           imagePullPolicy: Always
           command:
           - agentoperator
           args:
-          - "--image-repo=docker.io/niklaushirt"
+          - "--image-repo=MY_REGISTRY/multicluster-endpoint"
           - "--image-prefix="
           env:
             - name: POD_NAME
